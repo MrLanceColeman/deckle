@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="index,follow">
+  <title>Privacy Policy — Deckle</title>
+  <style>
+    :root { --canvas: #241f1b; --ink: #f6f0e6; --muted: #cbbba8; --accent: #e7b5a2; --rule: rgba(246,240,230,0.12); }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--canvas); color: var(--ink); }
+    body { font: 17px/1.55 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif; max-width: 720px; margin: 0 auto; padding: 48px 24px 80px; }
+    h1 { font-size: 40px; letter-spacing: -0.03em; font-weight: 620; margin: 0 0 8px; }
+    h2 { font-size: 22px; font-weight: 620; margin: 36px 0 10px; }
+    .meta, .muted { color: var(--muted); }
+    .meta { font-size: 14px; margin-bottom: 32px; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    hr { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+    ul { padding-left: 1.2em; }
+    nav a { margin-right: 16px; }
+  </style>
+</head>
+<body>
+  <p class="meta">Deckle</p>
+  <h1>Privacy Policy</h1>
+  <p class="meta">Effective 6 October 2026. Applies to the Deckle macOS app and these pages.</p>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+    <a href="support.html">Support</a>
+  </nav>
+  <hr>
+
+  <p>Deckle is a local Mac reader. It speaks text you paste, text recognized from a screenshot or a region of the screen, or text from a link you choose. When you turn on Listen to output, it records the audio already playing on this Mac, writes that recording to a file on this Mac, and turns it into text on this Mac. A screen movie is saved only if you check that option. This notice describes what the current direct build does with data.</p>
+
+  <h2>What stays on your Mac</h2>
+  <ul>
+    <li>Pasted text, dropped text files, and saved audio.</li>
+    <li>Screenshots and screen-region pictures. The direct edition uses <code>/usr/sbin/screencapture</code> for the rectangle you drag. The App Store edition captures that region inside Deckle with ScreenCaptureKit. The picture is written to a temporary file, read by on-device Vision text recognition, then deleted. It is not uploaded.</li>
+    <li>Speech. Deckle uses the <code>say</code> voices already installed on the Mac. Audio is not sent to a speech service.</li>
+    <li>Audio already playing on this Mac, when you choose Listen to output. Deckle taps that system output. It does not use the microphone. Recognition of those words stays on this Mac. Stop writes a playable audio file under Application Support and shows it in Finder. A screen movie is saved only if you turn that option on. While it is off, Deckle does not ask to record the screen.</li>
+    <li>Output recordings. Listen to output writes a WAV file, and a movie only if you asked for one, under <code>~/Library/Application Support/Deckle/Captures</code>. Recognition uses the Mac’s on-device speech recognizer. Those files are not uploaded.</li>
+    <li>The 14-day trial clock and, if you enter one, the license key. Both are stored in <code>~/Library/Application Support/Deckle</code> on this Mac.</li>
+  </ul>
+
+  <h2>What leaves the machine</h2>
+  <p>Fetching a link sends an ordinary web request to the site you named. That site sees the request and returns the page. Deckle does not send the page, the screenshot, the captured region, or the audio to a Deckle server. There is no Deckle account and no analytics in this build.</p>
+  <p>If a site answers with a browser check, Deckle can open that address in a window you control. That window is WebKit loading the site you asked for. The site can set its own cookies there. Deckle does not solve the check and does not forward the page to anyone else. A normal page, including example.com, does not open that window.</p>
+  <p>The direct edition does not contact Apple StoreKit. The App Store edition contacts Apple for the purchase and for Restore Purchases. Speech, screenshots, and region capture do not need the network. The link you fetch does. Deckle does not use a tracking SDK.</p>
+
+  <h2>Purchases</h2>
+  <p>Deckle is a $19 one-time purchase. The direct edition keeps a local 14-day trial, then unlocks with a license key checked on this Mac. Buy $19 opens the checkout address in <code>commerce.json</code> when one is set. The app does not collect a card number, and pressing Buy does not mark the copy as purchased. No checkout account is connected in this repository. The App Store edition stays locked until StoreKit reports the non-consumable <code>app.deckle.mac.lifetime</code> or a restore.</p>
+
+  <h2>What this product does not collect</h2>
+  <p>Deckle does not collect an account, location, contacts, or a diagnostics report. These pages, as stored in the repository, do not set analytics cookies.</p>
+
+  <h2>Retention</h2>
+  <p>You delete pasted text with Clear, and you delete saved audio wherever you put the file. Removing Deckle and deleting <code>~/Library/Application Support/Deckle</code> removes the trial clock and the license key stored there.</p>
+
+  <h2>Children</h2>
+  <p>Deckle is a reading utility. It is not directed at children under 13 and does not knowingly collect personal information from children.</p>
+
+  <h2>Contact</h2>
+  <p>Developer: Lance Coleman (Apple Team 7832UR9WUQ). No public support mailbox is published yet. See <a href="support.html">Support</a>.</p>
+
+  <h2>Changes</h2>
+  <p>If this notice changes, the effective date above changes with it. These files are ready to put on an HTTPS host. No public hostname is pointed at them yet.</p>
+</body>
+</html>
