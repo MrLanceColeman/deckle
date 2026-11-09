@@ -3,40 +3,708 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Deckle — Offline text to speech</title>
+  <title>Deckle for Mac — Offline Text to Speech, Screenshot &amp; Page Reader</title>
+  <meta name="description" content="Deckle is a $19 one-time Mac utility for offline text to speech. Read pasted text, a screenshot or live screen region, a web page, or an audio file on this Mac. No account.">
   <style>
-    :root { --canvas: #241f1b; --ink: #f6f0e6; --muted: #cbbba8; --accent: #e7b5a2; --rule: rgba(246,240,230,0.12); }
+    :root {
+      --ink: #1d1d1f;
+      --secondary: #3a3a3c;
+      --muted: #6e6e73;
+      --line: #d2d2d7;
+      --page: #ffffff;
+      --field: #f5f5f7;
+      --window: #e8e8ed;
+      --segment: #dedee3;
+      --fill: #005eb8;
+      --fill-hover: #004c96;
+      --fill-ink: #ffffff;
+      --track: #5c5c61;
+    }
     * { box-sizing: border-box; }
-    html, body { margin: 0; background: var(--canvas); color: var(--ink); }
-    body { font: 17px/1.55 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif; max-width: 720px; margin: 0 auto; padding: 72px 24px 80px; }
-    h1 { font-size: 48px; letter-spacing: -0.03em; font-weight: 620; margin: 12px 0 16px; }
-    h2 { font-size: 22px; font-weight: 620; margin: 40px 0 10px; }
-    .lede { font-size: 20px; color: var(--muted); margin: 0 0 28px; }
-    a { color: var(--accent); text-decoration: none; }
+    html, body {
+      margin: 0;
+      background: var(--field);
+      color: var(--ink);
+      font: 16px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--fill); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    hr { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
-    nav a { margin-right: 16px; }
-    ul { padding-left: 1.2em; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      background: var(--window);
+      padding: 2px 6px;
+      border-radius: 5px;
+    }
+
+    /* Top bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(245, 245, 247, 0.88);
+      backdrop-filter: saturate(180%) blur(16px);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .brand-link {
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--fill);
+      display: inline-block;
+    }
+    .topnav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 14px;
+      flex-wrap: wrap;
+    }
+    .topnav a { color: var(--secondary); font-weight: 500; }
+    .topnav a:hover { color: var(--ink); text-decoration: none; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 15px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn:hover { text-decoration: none; }
+    .btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 8px; }
+    .btn-primary {
+      background: var(--fill);
+      color: var(--fill-ink);
+    }
+    .btn-primary:hover { background: var(--fill-hover); }
+    .btn-secondary {
+      background: var(--page);
+      color: var(--ink);
+      border-color: var(--line);
+    }
+    .btn-secondary:hover { background: var(--window); }
+
+    /* Container */
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Hero */
+    .hero {
+      padding: 64px 0 40px;
+      text-align: center;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: var(--page);
+      border: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--secondary);
+      margin-bottom: 18px;
+    }
+    .hero h1 {
+      font-size: clamp(36px, 5.2vw, 58px);
+      line-height: 1.07;
+      letter-spacing: -0.035em;
+      font-weight: 720;
+      margin: 0 auto 18px;
+      max-width: 820px;
+    }
+    .hero .lede {
+      font-size: clamp(18px, 2.1vw, 22px);
+      color: var(--secondary);
+      max-width: 680px;
+      margin: 0 auto 28px;
+      line-height: 1.45;
+    }
+    .cta-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .hero-meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    /* Live App Preview Window */
+    .preview-shell {
+      max-width: 920px;
+      margin: 36px auto 0;
+      background: var(--window);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+      text-align: left;
+    }
+    .preview-titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--window);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .traffic {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+    .preview-modes {
+      display: inline-flex;
+      padding: 2px;
+      border-radius: 8px;
+      background: var(--segment);
+      gap: 2px;
+    }
+    .preview-tab {
+      border: 0;
+      background: transparent;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--secondary);
+      cursor: pointer;
+    }
+    .preview-tab[aria-selected="true"] {
+      background: var(--page);
+      color: var(--ink);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    }
+    .preview-tools {
+      font-size: 12px;
+      color: var(--secondary);
+      font-weight: 600;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .preview-tools span.wpm { color: var(--fill); }
+    .preview-canvas {
+      margin: 14px 16px;
+      background: var(--page);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px 22px 26px;
+      min-height: 190px;
+    }
+    .preview-canvas-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .preview-body {
+      font-size: 17px;
+      line-height: 1.55;
+      color: var(--ink);
+      margin: 0;
+    }
+    .preview-body mark {
+      background: rgba(0, 94, 184, 0.12);
+      color: var(--ink);
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .preview-player {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      border-top: 1px solid var(--line);
+      background: var(--window);
+      font-size: 12px;
+    }
+    .preview-read {
+      background: var(--fill);
+      color: var(--fill-ink);
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 7px;
+      font-size: 12px;
+    }
+    .preview-track {
+      flex: 1;
+      height: 6px;
+      border-radius: 99px;
+      background: #c7c7cc;
+      position: relative;
+    }
+    .preview-fill {
+      width: 38%;
+      height: 100%;
+      border-radius: 99px;
+      background: var(--fill);
+    }
+    .preview-links {
+      display: flex;
+      gap: 10px;
+      color: var(--fill);
+      font-weight: 600;
+    }
+
+    /* Section layout */
+    section.block {
+      padding: 56px 0;
+      border-top: 1px solid var(--line);
+    }
+    .section-head {
+      max-width: 680px;
+      margin-bottom: 32px;
+    }
+    .section-head h2 {
+      font-size: clamp(26px, 3.4vw, 34px);
+      letter-spacing: -0.025em;
+      margin: 0 0 10px;
+      line-height: 1.15;
+    }
+    .section-head p {
+      margin: 0;
+      color: var(--secondary);
+      font-size: 17px;
+    }
+
+    /* Grid cards */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 18px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+    .card {
+      background: var(--page);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 24px;
+    }
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 19px;
+      letter-spacing: -0.015em;
+    }
+    .card p {
+      margin: 0;
+      color: var(--secondary);
+      font-size: 15px;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--fill);
+      margin-bottom: 8px;
+    }
+
+    /* Comparison table */
+    .table-wrap {
+      background: var(--page);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+      text-align: left;
+    }
+    th, td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    th {
+      font-weight: 650;
+      background: var(--field);
+      color: var(--ink);
+    }
+    tr:last-child td { border-bottom: 0; }
+
+    /* Pricing cards */
+    .price-card {
+      background: var(--page);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .price-card.featured {
+      border: 2px solid var(--fill);
+    }
+    .price-big {
+      font-size: 40px;
+      font-weight: 750;
+      letter-spacing: -0.03em;
+      margin: 6px 0;
+    }
+    .price-big span {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    .clean-list {
+      margin: 14px 0 0;
+      padding-left: 18px;
+      color: var(--secondary);
+      font-size: 15px;
+    }
+    .clean-list li { margin-bottom: 8px; }
+
+    /* Footer */
+    footer.site-footer {
+      border-top: 1px solid var(--line);
+      padding: 40px 0 64px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .footer-links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
-  <p>Deckle for Mac</p>
-  <h1>Hear the page on this Mac.</h1>
-  <p class="lede">Paste text, read a screenshot aloud, or listen to a page, then save audio. Speech stays on the computer. No account.</p>
-  <nav>
-    <a href="privacy.html">Privacy</a>
-    <a href="terms.html">Terms</a>
-    <a href="support.html">Support</a>
-  </nav>
-  <hr>
-  <h2>What you get</h2>
-  <ul>
-    <li>Offline text to speech with the Mac voices you already have</li>
-    <li>Read a screenshot aloud, including a region of the screen</li>
-    <li>Listen to a page after you fetch the link</li>
-  </ul>
-  <h2>Price</h2>
-  <p>The product is a $19 one-time purchase. The direct edition includes a 14-day trial, then speech locks until a license key is entered. Buy $19 is in the window and does not mark the app as purchased. macOS Speak Selection, Outloud, and SpeechDock remain free for text you can already highlight.</p>
-  <p>Fetching a link needs the network. Speech and screenshots do not.</p>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/" class="brand-link"><span class="brand-dot"></span>Deckle</a>
+      <nav class="topnav" aria-label="Primary">
+        <a href="#modes">What it reads</a>
+        <a href="#editions">Direct vs. App Store</a>
+        <a href="#free-vs-paid">What’s already free</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="/support">Support</a>
+      </nav>
+      <div style="display:flex; gap:8px;">
+        <a class="btn btn-secondary btn-sm" href="https://github.com/MrLanceColeman/deckle/releases/download/v1.0.0/Deckle-1.0.0.dmg">Download DMG</a>
+        <a class="btn btn-primary btn-sm" href="#buy">Buy $19</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">macOS 13+ · Apple Silicon · Notarized Developer ID · $19 once</div>
+      <h1>Hear the page, the screenshot, or the audio on this Mac.</h1>
+      <p class="lede">
+        Paste text, read a screenshot aloud, watch a live region of the screen, listen to a page, or drop an audio file. Speech and recognition stay on your computer. No account and no subscription.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/MrLanceColeman/deckle/releases/download/v1.0.0/Deckle-1.0.0.dmg">Download for Mac (14-day trial)</a>
+        <a class="btn btn-secondary" href="#buy">Buy Deckle — $19 one-time</a>
+      </div>
+      <p class="hero-meta">
+        Version 1.0.0 · <code>Deckle-1.0.0.dmg</code> · Signed &amp; notarized · Fetching a link needs the network; speech and screenshots do not.
+      </p>
+
+      <div class="preview-shell" aria-label="Deckle window preview">
+        <div class="preview-titlebar">
+          <div class="traffic" aria-hidden="true">
+            <span class="dot dot-r"></span>
+            <span class="dot dot-y"></span>
+            <span class="dot dot-g"></span>
+          </div>
+          <div class="preview-modes" role="tablist" aria-label="Preview modes">
+            <button type="button" class="preview-tab" data-mode="text" aria-selected="true">Text</button>
+            <button type="button" class="preview-tab" data-mode="shot" aria-selected="false">Screenshot</button>
+            <button type="button" class="preview-tab" data-mode="audio" aria-selected="false">Audio</button>
+            <button type="button" class="preview-tab" data-mode="link" aria-selected="false">Web Page</button>
+          </div>
+          <div class="preview-tools">
+            <span>Ava (Premium)</span>
+            <span class="wpm">175 WPM</span>
+          </div>
+        </div>
+        <div class="preview-canvas">
+          <div class="preview-canvas-bar">
+            <span id="preview-meta">42 words · under a minute</span>
+            <span>Clear</span>
+          </div>
+          <p class="preview-body" id="preview-text">
+            <mark>Deckle speaks on the Mac you already have.</mark> Drop a screenshot, drag a rectangle over a dense PDF or video frame, paste a link, or drop an MP3—then scrub through the reading like an audio player or export an M4A file.
+          </p>
+        </div>
+        <div class="preview-player">
+          <span class="preview-read">Reading</span>
+          <span>0:04</span>
+          <div class="preview-track"><div class="preview-fill"></div></div>
+          <span>0:14</span>
+          <div class="preview-links">
+            <span>Pause</span>
+            <span>Previous</span>
+            <span>Next</span>
+            <span>Stop</span>
+            <span>Save audio</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="modes" class="block">
+      <div class="section-head">
+        <h2>One reading surface for four kinds of input</h2>
+        <p>Deckle looks like a clean note with a miniature player at the bottom. Everything resolves onto the same readable page.</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <span class="tag">1 · Pasted Text &amp; Selection</span>
+          <h3>Offline text to speech</h3>
+          <p>Paste notes, drafts, or articles and press Read. Scrub the timeline to jump to any sentence, adjust speed from 120 to 280 WPM, or press <code>Control-Option-D</code> in the direct edition to read selected text from any app.</p>
+        </div>
+        <div class="card">
+          <span class="tag">2 · Screenshot &amp; Live Region</span>
+          <h3>Read a screenshot aloud — or watch it live</h3>
+          <p>Drop an image, paste with <code>⌘V</code>, capture a screen region once, or click <strong>Read live</strong> to keep watching a region you drag and speak new words as they change on screen. Recognition uses on-device Apple Vision and filters out photo/video noise.</p>
+        </div>
+        <div class="card">
+          <span class="tag">3 · Dropped Audio &amp; System Output</span>
+          <h3>Play an audio file and transcribe it here</h3>
+          <p>Drop an MP3, M4A, WAV, or AIFF file to transcribe it on-device while it plays, or just play the file. In Settings, the direct edition can also tap what is already playing out of your Mac’s speakers without touching the microphone.</p>
+        </div>
+        <div class="card">
+          <span class="tag">4 · Web Pages &amp; Export</span>
+          <h3>Listen to a page and save M4A audio</h3>
+          <p>Paste a URL to extract the article and hear it locally. If a site returns a browser check, Deckle never solves or bypasses it—you can finish the check yourself in a normal window you control. Save any reading as a standalone <code>.m4a</code> file.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="free-vs-paid" class="block">
+      <div class="section-head">
+        <h2>What you are paying for vs. what is already free</h2>
+        <p>macOS already ships with free speech tools. You should use them if highlighted text is all you need.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Already free on your Mac</h3>
+          <p><strong>macOS Speak Selection</strong>, <strong>Outloud</strong>, and <strong>SpeechDock</strong> remain free for text you can already highlight in another window.</p>
+        </div>
+        <div class="card">
+          <h3>The $19 wedge</h3>
+          <p>Deckle puts pasted text, screenshot and live-region OCR, dropped audio transcription, web-page reading, a sentence timeline scrubber, and M4A export in one quiet window.</p>
+        </div>
+        <div class="card">
+          <h3>What stays on your Mac</h3>
+          <p>Speech uses the voices installed on your Mac. Screenshots and audio are recognized on-device and are not uploaded. Fetching a link needs the network; speech and screenshots do not.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="editions" class="block">
+      <div class="section-head">
+        <h2>Direct DMG vs. Mac App Store edition</h2>
+        <p>Deckle is built in two targets from the same codebase so the direct edition can use power-user macOS APIs that the App Sandbox restricts.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Capability</th>
+              <th>Direct Edition (<code>app.deckle.mac</code>)</th>
+              <th>App Store Edition (<code>app.deckle.mac.store</code>)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Offline text to speech, sentence timeline, Save audio (<code>.m4a</code>)</td>
+              <td>Included</td>
+              <td>Included</td>
+            </tr>
+            <tr>
+              <td>Drop/paste screenshot &amp; on-device Vision OCR</td>
+              <td>Included (<code>/usr/sbin/screencapture -i</code>)</td>
+              <td>Included (sandboxed <code>ScreenCaptureKit</code>)</td>
+            </tr>
+            <tr>
+              <td>Read live (watch a screen region &amp; speak new words)</td>
+              <td>Included</td>
+              <td>Direct edition only</td>
+            </tr>
+            <tr>
+              <td>Global selected-text shortcut (<code>Control-Option-D</code>)</td>
+              <td>Included (Accessibility API)</td>
+              <td>Not in sandboxed build</td>
+            </tr>
+            <tr>
+              <td>Listen to Mac speaker output (Core Audio process tap + WAV)</td>
+              <td>Included</td>
+              <td>Direct edition only</td>
+            </tr>
+            <tr>
+              <td>Dropped audio file player + on-device transcription</td>
+              <td>Included</td>
+              <td>Included</td>
+            </tr>
+            <tr>
+              <td>Trial &amp; unlock</td>
+              <td>14-day local trial, then $19 Ed25519 license key</td>
+              <td>StoreKit 2 non-consumable (<code>app.deckle.mac.lifetime</code>)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="buy" class="block">
+      <div class="section-head">
+        <h2>$19 one-time purchase. No account.</h2>
+        <p>Try the full direct edition for 14 days on your Mac. When the trial ends, speech locks until you enter a license key.</p>
+      </div>
+      <div class="grid-2">
+        <div class="price-card featured">
+          <div>
+            <span class="tag">Direct Download · Notarized DMG</span>
+            <h3>Deckle Direct Edition</h3>
+            <div class="price-big">$19 <span>USD · one-time</span></div>
+            <p style="color:var(--secondary); margin:0;">Full 14-day trial included on first launch. Unlocks on your Mac with an offline Ed25519 license key.</p>
+            <ul class="clean-list">
+              <li>All 4 modes: Text, Screenshot + Read live, Audio, Web Page</li>
+              <li><code>Control-Option-D</code> selected-text hotkey anywhere on macOS</li>
+              <li>System-audio output tap &amp; WAV capture in Settings</li>
+              <li>Signed &amp; notarized by Apple (Team <code>7832UR9WUQ</code>)</li>
+            </ul>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn btn-primary" href="https://github.com/MrLanceColeman/deckle/releases/download/v1.0.0/Deckle-1.0.0.dmg">Download Deckle-1.0.0.dmg</a>
+            <a class="btn btn-secondary" href="/support">How licensing works</a>
+          </div>
+        </div>
+        <div class="price-card">
+          <div>
+            <span class="tag">Sandboxed Target</span>
+            <h3>Mac App Store Edition</h3>
+            <div class="price-big">$19 <span>USD · StoreKit 2</span></div>
+            <p style="color:var(--secondary); margin:0;">Sandboxed build using <code>ScreenCaptureKit</code> and Apple In-App Purchase (<code>app.deckle.mac.lifetime</code>).</p>
+            <ul class="clean-list">
+              <li>One-time non-consumable purchase tied to your Apple ID</li>
+              <li>Restore Purchases built into the window</li>
+              <li>No global hotkey or system-output tap due to App Sandbox</li>
+              <li>Bundle ID registered; App Store listing pending manual creation</li>
+            </ul>
+          </div>
+          <div>
+            <a class="btn btn-secondary" href="/about">Read about both editions</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-row">
+      <div>
+        <strong>Deckle for Mac</strong> · Version 1.0.0 · Developer: Lance Coleman (7832UR9WUQ)
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="/about">About</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="/support">Support</a>
+        <a href="/offline-text-to-speech">Offline text to speech</a>
+        <a href="/read-a-screenshot-aloud">Read a screenshot aloud</a>
+        <a href="/listen-to-a-page">Listen to a page</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var copy = {
+        text: {
+          meta: "42 words · under a minute",
+          body: "<mark>Deckle speaks on the Mac you already have.</mark> Drop a screenshot, drag a rectangle over a dense PDF or video frame, paste a link, or drop an MP3—then scrub through the reading like an audio player or export an M4A file."
+        },
+        shot: {
+          meta: "Screenshot & Live Region · On-device Vision OCR",
+          body: "<mark>Capture screen</mark> grabs one region and speaks it. <mark>Read live</mark> keeps watching the rectangle you dragged and reads new sentences aloud as they appear—while rejecting photo and video gibberish."
+        },
+        audio: {
+          meta: "Audio file · Play & transcribe on this Mac",
+          body: "<mark>Drop an MP3, M4A, or WAV file.</mark> Deckle plays the audio right in the transport bar and transcribes the words onto the page using on-device speech recognition."
+        },
+        link: {
+          meta: "Web Page · Article extractor",
+          body: "<mark>Paste a URL and press Load.</mark> Deckle fetches the readable article text so you can listen offline or save an M4A file. If a site shows a browser check, you finish it in your own window."
+        }
+      };
+      var tabs = document.querySelectorAll(".preview-tab");
+      var meta = document.getElementById("preview-meta");
+      var text = document.getElementById("preview-text");
+      tabs.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var mode = btn.getAttribute("data-mode");
+          tabs.forEach(function (t) {
+            t.setAttribute("aria-selected", t === btn ? "true" : "false");
+          });
+          if (copy[mode]) {
+            meta.textContent = copy[mode].meta;
+            text.innerHTML = copy[mode].body;
+          }
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
